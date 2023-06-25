@@ -1,7 +1,6 @@
 import styles from "./MealItemForm.module.css";
 import Input from "../../UI/Input";
 import React from "react";
-import CartContext from "../../../store/cart-context";
 import { useState } from "react";
 import { useRef } from "react";
 
@@ -12,7 +11,7 @@ const MealItemForm = function (props) {
   const changedInputHandler = function (e) {
     e.preventDefault();
     const enteredAmount = +quantity.current.value;
-    if (enteredAmount === NaN || enteredAmount < 1 || enteredAmount > 5) {
+    if (isNaN(enteredAmount) || enteredAmount < 1 || enteredAmount > 5) {
       return;
     }
     setQtyIsValid(true);
@@ -21,7 +20,7 @@ const MealItemForm = function (props) {
   const clickHandler = function (e) {
     e.preventDefault();
     const enteredAmount = +quantity.current.value;
-    if (enteredAmount === NaN || enteredAmount < 1 || enteredAmount > 5) {
+    if (isNaN(enteredAmount) || enteredAmount < 1 || enteredAmount > 5) {
       setQtyIsValid(false);
       return;
     }

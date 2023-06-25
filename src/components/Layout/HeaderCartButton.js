@@ -9,9 +9,7 @@ const HeaderCartButton = function (props) {
 
   const stylesButton = `${bumpButton ? styles.bump : ""} ${styles.button}`;
   useEffect(() => {
-    console.log(bumpButton, "bump");
     setBumpButton(true);
-    console.log(bumpButton, "bump");
     const timer = setTimeout(() => setBumpButton(false), 300);
 
     return () => clearTimeout(timer);

@@ -3,11 +3,13 @@ import Modal from "../UI/Modal";
 import { useContext } from "react";
 import CartContext from "../../store/cart-context";
 import CartItem from "./CartItem";
-
+import Checkout from "./Checkout";
+import { useState } from "react";
 const Cart = function (props) {
   const cartContext = useContext(CartContext);
-
-  console.log(cartContext.totalAmount);
+  const [isCheckout, setIsCheckout] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const totalAmount = `$${cartContext.totalAmount.toFixed(2)}`;
   const hasItems = cartContext.items.length > 0;
 
@@ -33,8 +35,31 @@ const Cart = function (props) {
     </ul>
   );
 
-  return (
-    <Modal onClose={props.onClick}>
+  const orderHandler = function () {
+    setIsCheckout(true);
+  };
+
+  const submitOrderHandler = async function (userData) {
+    console.log("this ran");
+    setIsSubmitting(true);
+    await fetch(
+      "https://react-http-2ee63-default-rtdb.firebaseio.com/Orders.json",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          user: userData,
+          orderedItems: cartContext.items,
+        }),
+      }
+    );
+    cartContext.clearCart();
+
+    setIsSubmitting(false);
+    setSubmitted(true);
+  };
+
+  const modalCheckout = (
+    <>
       {cartItems}
       <div className={styles.total}>
         <span>Total Amount</span>
@@ -46,14 +71,51 @@ const Cart = function (props) {
         </button>
         <button
           className={styles.button}
-          onClick={(e) => console.log(e)}
+          onClick={orderHandler}
           disabled={!hasItems}
         >
           Order
         </button>
       </div>
-    </Modal>
+    </>
   );
+
+  let dispComponent = modalCheckout;
+
+  if (isCheckout) {
+    dispComponent = (
+      <>
+        {cartItems}
+        <div className={styles.total}>
+          <span>Total Amount</span>
+          <span>{totalAmount}</span>
+        </div>
+        <Checkout
+          onSubmit={submitOrderHandler}
+          onClick={props.onClick}
+        ></Checkout>
+      </>
+    );
+  }
+
+  if (isSubmitting) {
+    dispComponent = <p>Sending Order...</p>;
+  }
+
+  if (submitted) {
+    dispComponent = (
+      <>
+        <p>Order sent!</p>
+        <div className={styles.actions}>
+          <button className={styles.button} onClick={props.onClick}>
+            Okay
+          </button>
+        </div>
+      </>
+    );
+  }
+
+  return <Modal onClose={props.onClick}>{dispComponent}</Modal>;
 };
 
 export default Cart;
